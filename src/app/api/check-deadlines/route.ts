@@ -11,6 +11,8 @@ const resend = new Resend(process.env.RESEND_API_KEY || 're_VLDHMFNu_6FDfQjAh5qY
 const TARGET_EMAIL = 'gianluca.rossi@forini.com';
 const INTERVALS = [15, 7, 1];
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const force = searchParams.get('force') === 'true';
