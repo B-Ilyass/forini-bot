@@ -5,9 +5,18 @@ import { FileText, Plus, Trash2, RefreshCw, AlertCircle, Mail, CheckCircle, Cloc
 import Link from 'next/link';
 import { desc } from 'drizzle-orm';
 
+export const dynamic = 'force-dynamic';
+
 export default async function Dashboard() {
-  const files = await db.select().from(monitoredFiles);
-  const recentEmails = await db.select().from(sentNotifications).orderBy(desc(sentNotifications.sentAt)).limit(10);
+  let files: any[] = [];
+  let recentEmails: any[] = [];
+
+  try {
+    files = await db.select().from(monitoredFiles);
+    recentEmails = await db.select().from(sentNotifications).orderBy(desc(sentNotifications.sentAt)).limit(10);
+  } catch (error) {
+    console.error("Database not ready during build:", error);
+  }
 
   return (
     <div className="min-h-screen bg-neutral-50 p-6 md:p-12">
