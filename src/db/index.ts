@@ -1,24 +1,13 @@
-import { drizzle } from "drizzle-orm/node-postgres";
-import { Pool } from "pg";
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
+import * as schema from './schema';
 
-const databaseUrl = process.env.DATABASE_URL;
+const connectionString = process.env.DATABASE_URL;
 
-if (!databaseUrl) {
-  throw new Error("DATABASE_URL is required");
+if (!connectionString && process.env.NODE_ENV === 'production') {
+  console.warn("Attenzione: DATABASE_URL non configurata. Il bot non potrà connettersi al database.");
 }
 
-const globalForDb = globalThis as typeof globalThis & {
-  __arenaNextJsPostgresqlPool?: Pool;
-};
-
-export const pool =
-  globalForDb.__arenaNextJsPostgresqlPool ??
-  new Pool({
-    connectionString: databaseUrl,
-  });
-
-if (process.env.NODE_ENV !== "production") {
-  globalForDb.__arenaNextJsPostgresqlPool = pool;
-}
-
-export const db = drizzle(pool);
+// Creiamo il client solo se abbiamo la stringa, altrimenti usiamo un placeholder per evitare crash in fase di build
+const client = postgres(connectionString || 'postgres://localhost:5432/placeholder');
+export const db = drizzle(client, { schema });
